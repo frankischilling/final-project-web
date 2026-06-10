@@ -68,7 +68,7 @@ const Courses = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
             <h3 className="text-xl font-bold mb-4">Add New Course</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
