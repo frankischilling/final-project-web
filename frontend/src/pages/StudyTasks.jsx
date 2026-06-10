@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
-import { Plus, Trash2, CheckCircle } from 'lucide-react';
 
 const StudyTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ title: '', course: '', description: '', date: '', durationMinutes: 60, isCompleted: false });
 
   const fetchData = async () => {
@@ -27,7 +25,6 @@ const StudyTasks = () => {
       const payload = { ...formData };
       if (!payload.course) delete payload.course;
       await api.post('/studytasks', payload);
-      setShowModal(false);
       setFormData({ title: '', course: '', description: '', date: '', durationMinutes: 60, isCompleted: false });
       fetchData();
     } catch (error) {
@@ -48,95 +45,119 @@ const StudyTasks = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Study Tasks</h2>
-        <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition-colors">
-          <Plus className="h-5 w-5 mr-2" /> Add Task
-        </button>
-      </div>
+    <div>
+      <h2 style={{ color: '#3B5998', marginTop: 0 }}>Study Tasks</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tasks.map(task => {
-          const now = new Date();
-          now.setHours(0, 0, 0, 0);
-          const taskDate = new Date(task.date);
-          taskDate.setHours(0, 0, 0, 0);
-          const diffDays = Math.ceil((taskDate - now) / (1000 * 60 * 60 * 24));
-          
-          let dateStyle = "text-gray-600";
-          let warningText = "";
-          let cardStyle = "bg-white border-gray-100";
-          
-          if (!task.isCompleted) {
-            if (diffDays < 0) {
-              dateStyle = "text-red-600 font-bold";
-              warningText = " (Overdue)";
-              cardStyle = "bg-red-50 border-red-200";
-            } else if (diffDays <= 3) {
-              dateStyle = "text-orange-500 font-bold";
-              warningText = " (Soon)";
-            }
-          }
+      <table width="100%" cellPadding="8">
+        <tbody>
+          <tr>
+            <th>Plan Study Task</th>
+          </tr>
+          <tr style={{ backgroundColor: '#F9F9F9' }}>
+            <td>
+              <form onSubmit={handleSubmit}>
+                <table border="0" style={{ border: 'none' }} cellPadding="4">
+                  <tbody>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Topic/Title:</b></td>
+                      <td style={{ border: 'none' }}><input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Related Course:</b></td>
+                      <td style={{ border: 'none' }}>
+                        <select value={formData.course} onChange={e => setFormData({...formData, course: e.target.value})} style={{ width: '258px' }}>
+                          <option value="">None</option>
+                          {courses.map(c => <option key={c._id} value={c._id}>{c.code}</option>)}
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Date:</b></td>
+                      <td style={{ border: 'none' }}><input required type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Duration (mins):</b></td>
+                      <td style={{ border: 'none' }}><input required type="number" min="5" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: parseInt(e.target.value)})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none' }}></td>
+                      <td style={{ border: 'none', paddingTop: '10px' }}><input type="submit" value="Save Task" /></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-          return (
-            <div key={task._id} className={`p-6 rounded-xl shadow-sm border ${cardStyle} ${task.isCompleted ? 'opacity-70 bg-gray-50' : ''}`}>
-              <div className="flex justify-between items-start mb-4">
-                <h3 className={`text-lg font-bold ${task.isCompleted ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{task.title}</h3>
-                <div className="flex space-x-2">
-                  <button onClick={() => toggleComplete(task._id, task.isCompleted)} className={`${task.isCompleted ? 'text-green-500' : 'text-gray-300 hover:text-green-500'}`}>
-                    <CheckCircle className="h-5 w-5" />
-                  </button>
-                  <button onClick={() => handleDelete(task._id)} className="text-gray-400 hover:text-red-600">
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-              {task.course && <p className="text-sm text-blue-600 font-medium mb-2">{task.course.code}</p>}
-              <p className={`text-sm mb-1 ${dateStyle}`}><span className="font-medium text-gray-600">Date:</span> {new Date(task.date).toLocaleDateString()}{warningText}</p>
-              <p className="text-sm text-gray-600"><span className="font-medium">Duration:</span> {task.durationMinutes} mins</p>
-            </div>
-          );
-        })}
-        {tasks.length === 0 && (
-          <div className="col-span-full p-8 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-            No study tasks planned.
-          </div>
-        )}
-      </div>
+      <br />
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold mb-4">Plan Study Task</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Topic/Title</label>
-                <input required type="text" className="w-full border p-2 rounded-lg" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Related Course (Optional)</label>
-                <select className="w-full border p-2 rounded-lg" value={formData.course} onChange={e => setFormData({...formData, course: e.target.value})}>
-                  <option value="">None</option>
-                  {courses.map(c => <option key={c._id} value={c._id}>{c.code}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input required type="date" className="w-full border p-2 rounded-lg" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
-                <input required type="number" min="5" className="w-full border p-2 rounded-lg" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: parseInt(e.target.value)})} />
-              </div>
-              <div className="flex justify-end space-x-3 pt-4">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Task</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <table width="100%" cellPadding="8">
+        <thead>
+          <tr style={{ fontSize: '11px', color: '#666' }}>
+            <th>STATUS</th>
+            <th>TITLE</th>
+            <th>COURSE</th>
+            <th>DATE</th>
+            <th>DURATION</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.length > 0 ? (
+            tasks.map((task, index) => {
+              const now = new Date();
+              now.setHours(0, 0, 0, 0);
+              const taskDate = new Date(task.date);
+              taskDate.setHours(0, 0, 0, 0);
+              const diffDays = Math.ceil((taskDate - now) / (1000 * 60 * 60 * 24));
+              
+              let warningText = "";
+              let textColor = "#333333";
+              
+              if (!task.isCompleted) {
+                if (diffDays < 0) {
+                  warningText = " (Overdue)";
+                  textColor = "#CC0000";
+                } else if (diffDays <= 3) {
+                  warningText = " (Soon)";
+                  textColor = "#FF6600";
+                }
+              }
+
+              const rowColor = task.isCompleted ? '#F0F0F0' : (index % 2 === 0 ? '#FFFFFF' : '#F9F9F9');
+
+              return (
+                <tr key={task._id} style={{ backgroundColor: rowColor }} align="center">
+                  <td>
+                    {task.isCompleted ? (
+                      <span style={{ color: '#008800', fontWeight: 'bold' }}>Done</span>
+                    ) : (
+                      <button onClick={() => toggleComplete(task._id, task.isCompleted)}>Complete</button>
+                    )}
+                  </td>
+                  <td align="left">
+                    {task.isCompleted ? <span style={{ color: '#999', textDecoration: 'line-through' }}>{task.title}</span> : <b>{task.title}</b>}
+                  </td>
+                  <td style={{ fontSize: '11px' }}>{task.course ? task.course.code : '-'}</td>
+                  <td style={{ color: textColor }}>
+                    {new Date(task.date).toLocaleDateString()} <b>{warningText}</b>
+                  </td>
+                  <td style={{ fontSize: '11px' }}>{task.durationMinutes} mins</td>
+                  <td>
+                    <button onClick={() => handleDelete(task._id)}>Delete</button>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan="6" align="center" style={{ padding: '20px', color: '#666' }}>No study tasks planned.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

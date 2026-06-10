@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
-  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', code: '', instructor: '', term: '' });
 
   const fetchCourses = async () => {
@@ -20,7 +18,6 @@ const Courses = () => {
     e.preventDefault();
     try {
       await api.post('/courses', formData);
-      setShowModal(false);
       setFormData({ name: '', code: '', instructor: '', term: '' });
       fetchCourses();
     } catch (error) {
@@ -36,66 +33,79 @@ const Courses = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">My Courses</h2>
-        <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition-colors">
-          <Plus className="h-5 w-5 mr-2" /> Add Course
-        </button>
-      </div>
+    <div>
+      <h2 style={{ color: '#3B5998', marginTop: 0 }}>My Courses</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map(course => (
-          <div key={course._id} className="bg-white p-6 rounded-xl shadow-sm border-t-4 border border-gray-100" style={{ borderTopColor: course.color || '#3b82f6' }}>
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">{course.name}</h3>
-                <span className="text-sm font-medium px-2 py-1 bg-gray-100 text-gray-600 rounded mt-1 inline-block">{course.code}</span>
-              </div>
-              <button onClick={() => handleDelete(course._id)} className="text-gray-400 hover:text-red-600 transition-colors">
-                <Trash2 className="h-5 w-5" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-1"><span className="font-medium">Instructor:</span> {course.instructor || 'N/A'}</p>
-            <p className="text-sm text-gray-600"><span className="font-medium">Term:</span> {course.term || 'N/A'}</p>
-          </div>
-        ))}
-        {courses.length === 0 && (
-          <div className="col-span-full p-8 text-center text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
-            No courses added yet. Click "Add Course" to get started!
-          </div>
-        )}
-      </div>
+      <table width="100%" cellPadding="8">
+        <tbody>
+          <tr>
+            <th>Add New Course</th>
+          </tr>
+          <tr style={{ backgroundColor: '#F9F9F9' }}>
+            <td>
+              <form onSubmit={handleSubmit}>
+                <table border="0" style={{ border: 'none' }} cellPadding="4">
+                  <tbody>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Course Name:</b></td>
+                      <td style={{ border: 'none' }}><input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Course Code:</b></td>
+                      <td style={{ border: 'none' }}><input required type="text" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Instructor:</b></td>
+                      <td style={{ border: 'none' }}><input type="text" value={formData.instructor} onChange={e => setFormData({...formData, instructor: e.target.value})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td align="right" style={{ border: 'none' }}><b>Term:</b></td>
+                      <td style={{ border: 'none' }}><input type="text" value={formData.term} onChange={e => setFormData({...formData, term: e.target.value})} style={{ width: '250px' }} /></td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: 'none' }}></td>
+                      <td style={{ border: 'none', paddingTop: '10px' }}><input type="submit" value="Save Course" /></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold mb-4">Add New Course</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
-                <input required type="text" className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. Web Development" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
-                <input required type="text" className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})} placeholder="e.g. COMP4650" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Instructor</label>
-                <input type="text" className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" value={formData.instructor} onChange={e => setFormData({...formData, instructor: e.target.value})} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Term</label>
-                <input type="text" className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" value={formData.term} onChange={e => setFormData({...formData, term: e.target.value})} />
-              </div>
-              <div className="flex justify-end space-x-3 pt-4">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Save Course</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <br />
+
+      <table width="100%" cellPadding="8">
+        <thead>
+          <tr style={{ fontSize: '11px', color: '#666' }}>
+            <th>CODE</th>
+            <th>COURSE NAME</th>
+            <th>INSTRUCTOR</th>
+            <th>TERM</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courses.length > 0 ? (
+            courses.map((course, index) => (
+              <tr key={course._id} align="center" style={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9' }}>
+                <td><b>{course.code}</b></td>
+                <td align="left">{course.name}</td>
+                <td>{course.instructor || '-'}</td>
+                <td>{course.term || '-'}</td>
+                <td>
+                  <button onClick={() => handleDelete(course._id)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" align="center" style={{ padding: '20px', color: '#666' }}>No courses added yet.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };

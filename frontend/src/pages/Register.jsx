@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { BookOpen } from 'lucide-react';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -22,52 +21,42 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center text-blue-600 mb-6">
-          <BookOpen className="h-12 w-12" />
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Create an account</h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">sign in to your existing account</Link>
-        </p>
+    <div style={{ margin: '50px auto', width: '450px', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC' }}>
+      <div style={{ background: 'linear-gradient(to bottom, #3B5998, #2A4073)', padding: '15px', color: '#FFFFFF', textAlign: 'center' }}>
+        <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 'bold' }}>CourseTrack 2004</h1>
+      </div>
+      
+      <div style={{ padding: '20px', backgroundColor: '#F5F7FA' }}>
+        <h3 style={{ marginTop: 0, color: '#3B5998', borderBottom: '1px solid #CCCCCC', paddingBottom: '10px' }}>Create an Account</h3>
+        
+        {error && <div style={{ border: '1px solid #CC0000', backgroundColor: '#FFCCCC', padding: '10px', marginBottom: '15px', fontSize: '12px' }}><b>Error:</b> {error}</div>}
+        
+        <form onSubmit={handleSubmit}>
+          <table border="0" cellPadding="6" width="100%" style={{ border: 'none' }}>
+            <tbody>
+              <tr>
+                <td align="right" width="30%" style={{ border: 'none' }}><b>Full Name:</b></td>
+                <td style={{ border: 'none' }}><input type="text" required value={name} onChange={(e) => setName(e.target.value)} style={{ width: '220px' }} /></td>
+              </tr>
+              <tr>
+                <td align="right" style={{ border: 'none' }}><b>Email:</b></td>
+                <td style={{ border: 'none' }}><input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '220px' }} /></td>
+              </tr>
+              <tr>
+                <td align="right" style={{ border: 'none' }}><b>Password:</b></td>
+                <td style={{ border: 'none' }}><input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '220px' }} /></td>
+              </tr>
+              <tr>
+                <td style={{ border: 'none' }}></td>
+                <td style={{ border: 'none', paddingTop: '15px' }}><input type="submit" value="Register Account" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </form>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
-          {error && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4">{error}</div>}
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name</label>
-              <div className="mt-1">
-                <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email address</label>
-              <div className="mt-1">
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <div className="mt-1">
-                <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-              </div>
-            </div>
-
-            <div>
-              <button type="submit" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                Register
-              </button>
-            </div>
-          </form>
-        </div>
+      <div style={{ borderTop: '1px solid #CCCCCC', padding: '15px', textAlign: 'center', backgroundColor: '#EFEFEF', fontSize: '11px' }}>
+        Already a member? <Link to="/login"><b>Sign In Here!</b></Link>
       </div>
     </div>
   );

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { BookOpen, CalendarDays, CheckCircle } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -32,7 +31,7 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-gray-500">Loading dashboard...</div>;
+  if (loading) return <div>Loading dashboard... Please wait.</div>;
 
   const completedAssignments = assignments.filter(a => a.status === 'Completed').length;
   const pendingAssignments = assignments.length - completedAssignments;
@@ -49,29 +48,11 @@ const Dashboard = () => {
     datasets: [
       {
         data: [totalCompleted, totalPending],
-        backgroundColor: ['#10B981', '#F59E0B'],
-        hoverBackgroundColor: ['#059669', '#D97706'],
-        borderWidth: 0,
+        backgroundColor: ['#6699CC', '#FF9900'],
+        borderWidth: 1,
+        borderColor: '#FFFFFF'
       },
     ],
-  };
-
-  const chartOptions = {
-    maintainAspectRatio: false,
-    cutout: '75%',
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-          font: {
-            family: "'Inter', sans-serif",
-            size: 13
-          }
-        }
-      }
-    }
   };
 
   const formattedAssignments = assignments
@@ -100,114 +81,104 @@ const Dashboard = () => {
     .slice(0, 5);
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Dashboard Overview</h2>
+    <div>
+      <h2 style={{ color: '#3B5998', marginTop: 0 }}>Dashboard Overview</h2>
       
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 flex items-center border border-gray-100">
-          <div className="p-3 bg-blue-100 text-blue-600 rounded-lg mr-4">
-            <BookOpen className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">Total Courses</p>
-            <p className="text-2xl font-bold text-gray-800">{courses.length}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 flex items-center border border-gray-100">
-          <div className="p-3 bg-yellow-100 text-yellow-600 rounded-lg mr-4">
-            <CalendarDays className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">Pending Tasks</p>
-            <p className="text-2xl font-bold text-gray-800">{totalPending}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 flex items-center border border-gray-100">
-          <div className="p-3 bg-green-100 text-green-600 rounded-lg mr-4">
-            <CheckCircle className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500 font-medium">Completed</p>
-            <p className="text-2xl font-bold text-gray-800">{totalCompleted}</p>
-          </div>
-        </div>
-      </div>
+      <table width="100%" cellPadding="8">
+        <tbody>
+          <tr>
+            <th>Total Courses</th>
+            <th>Pending Tasks</th>
+            <th>Completed</th>
+          </tr>
+          <tr align="center" style={{ backgroundColor: '#F9F9F9' }}>
+            <td style={{ fontSize: '16px' }}><b>{courses.length}</b></td>
+            <td style={{ fontSize: '16px' }}><b><span style={{ color: '#CC0000' }}>{totalPending}</span></b></td>
+            <td style={{ fontSize: '16px' }}><b><span style={{ color: '#008800' }}>{totalCompleted}</span></b></td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-1 flex flex-col items-center justify-center">
-          <h3 className="text-lg font-semibold text-gray-800 w-full mb-4">Overall Progress</h3>
-          {totalItems > 0 ? (
-            <div className="w-full h-64 relative">
-              <Doughnut data={chartData} options={chartOptions} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-10">
-                <span className="text-3xl font-bold text-gray-800">
-                  {Math.round((totalCompleted / totalItems) * 100)}%
-                </span>
-                <span className="text-xs text-gray-500 font-medium">Done</span>
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 text-center py-10 w-full">No items to track.</p>
-          )}
-        </div>
+      <br />
 
-        {/* Upcoming List */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Upcoming Deadlines</h3>
-          {upcomingItems.length > 0 ? (
-            <div className="space-y-4">
-              {upcomingItems.map((item) => {
-                const now = new Date();
-                now.setHours(0, 0, 0, 0);
-                const dueDateObj = new Date(item.date);
-                dueDateObj.setHours(0, 0, 0, 0);
-                const diffDays = Math.ceil((dueDateObj - now) / (1000 * 60 * 60 * 24));
-                
-                let dateStyle = "text-gray-500";
-                let warningText = "";
-                if (diffDays < 0) {
-                  dateStyle = "text-red-600 font-bold";
-                  warningText = " (Overdue)";
-                } else if (diffDays <= 3) {
-                  dateStyle = "text-orange-500 font-bold";
-                  warningText = " (Due soon)";
-                }
+      <table width="100%" border="0" style={{ border: 'none' }}>
+        <tbody>
+          <tr>
+            <td width="35%" valign="top" style={{ border: 'none', paddingRight: '15px' }}>
+              <table width="100%" cellPadding="8">
+                <tbody>
+                  <tr>
+                    <th>Overall Progress</th>
+                  </tr>
+                  <tr>
+                    <td align="center" style={{ backgroundColor: '#F9F9F9' }}>
+                      {totalItems > 0 ? (
+                        <div style={{ width: '180px', margin: '0 auto' }}>
+                          <div style={{ height: '200px' }}>
+                            <Doughnut data={chartData} options={{ maintainAspectRatio: false, cutout: '50%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Verdana', size: 11 } } } } }} />
+                          </div>
+                          <div style={{ marginTop: '5px' }}>
+                            <b>Done: {Math.round((totalCompleted / totalItems) * 100)}%</b>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ padding: '30px 0', color: '#666' }}>No items to track.</div>
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+            <td width="65%" valign="top" style={{ border: 'none' }}>
+              <table width="100%" cellPadding="8">
+                <tbody>
+                  <tr>
+                    <th colSpan="4">Upcoming Deadlines</th>
+                  </tr>
+                  <tr style={{ backgroundColor: '#F0F0F0', fontSize: '11px', color: '#666' }}>
+                    <td><b>TYPE</b></td>
+                    <td><b>TITLE</b></td>
+                    <td><b>DATE</b></td>
+                    <td><b>PRIORITY</b></td>
+                  </tr>
+                  {upcomingItems.length > 0 ? (
+                    upcomingItems.map((item, index) => {
+                      const now = new Date();
+                      now.setHours(0, 0, 0, 0);
+                      const dueDateObj = new Date(item.date);
+                      dueDateObj.setHours(0, 0, 0, 0);
+                      const diffDays = Math.ceil((dueDateObj - now) / (1000 * 60 * 60 * 24));
+                      
+                      let warningText = "";
+                      let textColor = "#333333";
+                      if (diffDays < 0) {
+                        warningText = " (Overdue)";
+                        textColor = "#CC0000";
+                      } else if (diffDays <= 3) {
+                        warningText = " (Due soon)";
+                        textColor = "#FF6600";
+                      }
 
-                return (
-                  <div key={item._id + item.type} className={`flex justify-between items-center p-4 rounded-lg ${diffDays < 0 ? 'bg-red-50 border border-red-100' : 'bg-gray-50'}`}>
-                    <div>
-                      <h4 className="font-semibold text-gray-800 flex items-center">
-                        {item.title} 
-                        <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wide ml-3 py-0.5 px-2 bg-gray-200 rounded-full">
-                          {item.type}
-                        </span>
-                      </h4>
-                      <p className={`text-sm mt-1 ${dateStyle}`}>
-                        {item.course?.code || 'No Course'} • {new Date(item.date).toLocaleDateString()}{warningText}
-                      </p>
-                    </div>
-                    {item.type === 'Assignment' ? (
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium shrink-0
-                        ${item.priority === 'High' ? 'bg-red-100 text-red-800' : 
-                          item.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>
-                        {item.priority} Priority
-                      </span>
-                    ) : (
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 shrink-0">
-                        Study Session
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">You're all caught up!</p>
-          )}
-        </div>
-      </div>
+                      return (
+                        <tr key={item._id + item.type} style={{ backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#F9F9F9' }}>
+                          <td style={{ fontSize: '11px', color: '#666' }}>{item.type}</td>
+                          <td><b>{item.title}</b> <span style={{ fontSize: '11px', color: '#888' }}>({item.course?.code || 'None'})</span></td>
+                          <td style={{ color: textColor }}>{new Date(item.date).toLocaleDateString()} <b>{warningText}</b></td>
+                          <td style={{ fontSize: '11px' }}>{item.priority || '-'}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="4" align="center" style={{ padding: '20px', color: '#666' }}>You're all caught up!</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };
