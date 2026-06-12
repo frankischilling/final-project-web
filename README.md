@@ -74,8 +74,6 @@ CourseTrack is a web-based assignment and study planner that helps students orga
 
 ---
 
----
-
 ## API Route List
 
 ### Auth Routes (`/api/auth`)
